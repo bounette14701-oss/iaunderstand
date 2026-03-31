@@ -1,8 +1,9 @@
 import streamlit as st
 import time
+import random
 
 # ============================================================
-# CONFIGURATION
+# CONFIG
 # ============================================================
 st.set_page_config(
     page_title="Comprendre l'IA : Sous le capot",
@@ -17,21 +18,22 @@ with st.sidebar:
     st.header("📌 Comment utiliser cette démo")
     st.write("""
     Cette application sert :
-    - **pendant la présentation** (démo guidée),
-    - **après la présentation** (relecture autonome).
+    - pendant la présentation (démo guidée),
+    - après la présentation (relecture autonome).
 
-    Parcourez les sections :
+    Contenu :
     1. Tokens  
     2. Contexte  
     3. Raisonnement  
-    4. Choix du mode Copilot  
+    4. Mode Copilot  
     5. Internet vs IA  
-    6. Pourquoi les ingénieurs doivent s'y intéresser  
-    7. Limites et précautions  
+    6. Pourquoi les ingénieurs s’y intéressent  
+    7. *Nouveaux modules interactifs*  
+    8. Limites & précautions
     """)
 
 # ============================================================
-# ENTÊTE & MESSAGE D'OUVERTURE
+# INTRO
 # ============================================================
 
 st.title("🧠 Voyage au cœur d'une IA (LLM)")
@@ -39,33 +41,27 @@ st.title("🧠 Voyage au cœur d'une IA (LLM)")
 st.markdown("""
 ### Pourquoi cette application ?
 
-Cette démonstration a un objectif simple :
+Cette démonstration a 3 objectifs :
 
-- 🎯 **Comprendre comment fonctionne une IA générative**
-- 🚀 **Montrer pourquoi l’IA est un tournant majeur dans nos métiers**
-- 📈 **Mettre en évidence pourquoi les ingénieurs doivent s’y intéresser pour rester compétitifs**
+- 🎯 Comprendre comment fonctionne une IA générative  
+- 🚀 Montrer pourquoi l’IA est un **tournant majeur** dans nos métiers  
+- 📈 Expliquer pourquoi les ingénieurs ont **tout intérêt à s’y intéresser**
 
-❗ L'IA ne remplace pas l’ingénieur :  
-Elle **augmente** sa capacité à lire, analyser, structurer et produire plus vite.  
-Comme Internet a transformé l'accès à l'information, l'IA transforme la manière de l'exploiter.
+❗ L’IA ne remplace pas l’ingénieur :  
+Elle **augmente** notre capacité à lire, analyser, structurer, comparer et produire plus vite.
 """)
 
 st.divider()
 
-# ============================================================
-# SECTION 1 : TOKENS
-# ============================================================
 
+###############################################################
+# SECTION 1 — TOKENS
+###############################################################
 st.header("🧩 1. Qu'est-ce qu'un Token ?")
-st.write("""
-Les modèles d'IA ne lisent pas les mots comme nous.  
-Ils découpent le texte en petites unités appelées **tokens** (mots, sous-mots, lettres).
-""")
 
-user_text = st.text_input(
-    "Tapez une phrase pour voir comment l'IA la 'tokenise' :",
-    "L'ingénierie mécanique évolue vite."
-)
+st.write("Les modèles d’IA découpent le texte en petites unités (mots, sous-mots, lettres).")
+
+user_text = st.text_input("Exemple :", "L'ingénierie mécanique évolue vite.")
 
 def simulate_tokenization(text):
     text = text.replace("'", "' ")
@@ -81,275 +77,295 @@ def simulate_tokenization(text):
 
 if user_text:
     tokens = simulate_tokenization(user_text)
-    st.write(f"Votre phrase contient **{len(tokens)} tokens**.")
+    st.write(f"→ **{len(tokens)} tokens**")
 
     colors = ["#FF9999", "#99CCFF", "#99FF99", "#FFCC99", "#CC99FF", "#FFFF99"]
-    html = ""
-
-    for i, token in enumerate(tokens):
-        html += (
-            f'<span style="background:{colors[i%6]}; padding:4px 8px;'
-            f'border-radius:4px; margin:3px; display:inline-block;">{token}</span>'
-        )
-
-    st.markdown(html, unsafe_allow_html=True)
+    out = ""
+    for i, t in enumerate(tokens):
+        out += f"<span style='background:{colors[i%6]}; padding:4px; margin:3px; border-radius:3px'>{t}</span>"
+    st.markdown(out, unsafe_allow_html=True)
 
 st.divider()
 
-# ============================================================
-# SECTION 2 : FENÊTRE DE CONTEXTE
-# ============================================================
 
-st.header("🪟 2. Input / Output et Fenêtre de Contexte")
+###############################################################
+# SECTION 2 — CONTEXTE
+###############################################################
+st.header("🪟 2. Fenêtre de Contexte")
 
-context_size = st.slider(
-    "Réglez la taille de la fenêtre de contexte :",
-    min_value=5, max_value=40, value=15
-)
+context_size = st.slider("Taille de la fenêtre :", 5, 40, 15)
 
 long_text = (
     "Bonjour IA. Je m'appelle Jean. Je suis ingénieur en CVC. "
-    "Mon bâtiment actuel a un problème de surchauffe au 3ème étage. "
-    "La climatisation est une pompe à chaleur air-eau. Que dois-je vérifier en premier ?"
+    "Mon bâtiment actuel a un problème de surchauffe au 3e étage. "
+    "La climatisation est une PAC air-eau. Que dois-je vérifier ?"
 )
 
 words = long_text.split()
 
-st.subheader("Ce que l'IA 'voit' avant de répondre :")
-
 if context_size < len(words):
     forgotten = " ".join(words[:-context_size])
     remembered = " ".join(words[-context_size:])
-
     st.markdown(
-        f"<span style='color:grey; text-decoration:line-through;'>{forgotten}</span> "
-        f"<span style='background:#E6F3FF; font-weight:bold;'>{remembered}</span>",
+        f"<span style='color:grey;text-decoration:line-through;'>{forgotten}</span> "
+        f"<span style='background:#E6F3FF;font-weight:bold'>{remembered}</span>",
         unsafe_allow_html=True
     )
-
-    st.warning("⚠️ Texte trop long → l’IA oublie le début.")
-    if st.button("Générer Output (🔴 IA a oublié des infos)"):
-        st.info("Réponse : L'IA répond sans savoir que vous êtes ingénieur → réponse trop générique.")
-
+    st.warning("L’IA oublie le début.")
 else:
-    st.success("Tout le texte tient dans la fenêtre → aucune perte d'information.")
-    st.markdown(
-        f"<span style='background:#E6F3FF; font-weight:bold;'>{long_text}</span>",
-        unsafe_allow_html=True
-    )
-
-    if st.button("Générer Output (🟢 Toutes les infos présentes)"):
-        st.info("Réponse : Analyse complète et contextualisée.")
+    st.success("Toute l'information rentre.")
+    st.markdown(f"<span style='background:#E6F3FF'>{long_text}</span>", unsafe_allow_html=True)
 
 st.divider()
 
-# ============================================================
-# SECTION 3 : RAISONNEMENT
-# ============================================================
 
-st.header("⚙️ 3. Capacité de Raisonnement (Chain of Thought)")
+###############################################################
+# SECTION 3 — RAISONNEMENT
+###############################################################
+st.header("⚙️ 3. Capacité de Raisonnement")
 
 problem = (
-    "Un ascenseur peut porter 800 kg. 3 personnes sont déjà dedans (75 kg chacune). "
-    "Un colis de 200 kg est présent. Combien de personnes supplémentaires peuvent entrer ?"
+    "Un ascenseur supporte 800 kg. 3 personnes (75 kg) + un colis de 200 kg sont dedans. "
+    "Combien de personnes peuvent encore entrer ?"
 )
-
 st.info(problem)
 
-mode = st.radio(
-    "Mode de réponse :",
-    ["Réponse directe (risque d'erreur)", "Raisonnement étape par étape"]
-)
+mode = st.radio("Mode :", ["Direct", "Raisonnement étape par étape"])
 
-if st.button("Lancer l'analyse"):
-    if mode == "Réponse directe (risque d'erreur)":
-        st.error("**Réponse directe :** 4 personnes (erreur).")
-        st.write("→ Pas de calcul → risque d’hallucination.")
+if st.button("Lancer"):
+    if mode == "Direct":
+        st.error("→ Réponse directe (erronée) : 4 personnes")
     else:
-        with st.status("L'IA réfléchit..."):
+        with st.status("Réflexion en cours..."):
             steps = [
-                "Capacité totale : 800 kg",
-                "Poids des 3 personnes : 3 × 75 = 225 kg",
-                "Ajout du colis : 225 + 200 = 425 kg",
-                "Poids restant : 800 – 425 = 375 kg",
-                "Personnes possibles : 375 / 75 = 5"
+                "Poids actuel : 3×75 = 225",
+                "225 + 200 = 425",
+                "Reste : 800 – 425 = 375",
+                "375 / 75 = 5"
             ]
             for s in steps:
                 st.write("📝", s)
-                time.sleep(0.6)
-        st.success("➡️ **Réponse correcte : 5 personnes.**")
+                time.sleep(0.5)
+        st.success("→ Réponse correcte : **5 personnes**")
 
 st.divider()
 
-# ============================================================
-# SECTION 4 : CHOISIR LE BON MODE COPILOT
-# ============================================================
 
-st.header("🧭 4. Comment choisir le bon mode / modèle Copilot ?")
+###############################################################
+# SECTION 4 — MODE COPILOT
+###############################################################
 
-st.write("""
-Ici, nous montrons comment choisir *Automatique*, *Réponse rapide* ou *Réponse approfondie*  
-en fonction de la tâche.  
-→ **Les curseurs se mettent à jour automatiquement selon la tâche.**
-""")
+st.header("🧭 4. Comment choisir le bon mode Copilot ?")
 
-# -------------------------
-# PROFILS DE TÂCHES
-# -------------------------
 TASK_PROFILES = {
-    "Rédiger un mail simple à un fournisseur": (1, 5, 2, 2),
-    "Résumer un compte-rendu technique": (3, 3, 3, 3),
-    "Comparer plusieurs options techniques HVAC": (4, 2, 4, 5),
-    "Analyser un avenant contractuel": (5, 2, 5, 5),
-    "Préparer une note de synthèse pour arbitrage": (4, 3, 5, 5),
-    "Créer une checklist de points à vérifier": (2, 4, 3, 3),
-    "Identifier des risques / oublis dans un document": (5, 2, 5, 5)
+    "Rédiger un mail simple": (1, 5, 2, 2),
+    "Résumer un CR technique": (3, 3, 3, 3),
+    "Comparer options HVAC": (4, 2, 4, 5),
+    "Analyser un avenant": (5, 2, 5, 5),
+    "Préparer une note d’arbitrage": (4, 3, 5, 5),
 }
 
-# -------------------------
-# SESSION STATE INIT
-# -------------------------
-if "selected_task" not in st.session_state:
-    st.session_state.selected_task = "Préparer une note de synthèse pour arbitrage"
+if "task" not in st.session_state:
+    st.session_state.task = "Préparer une note d’arbitrage"
+if "manual" not in st.session_state:
+    st.session_state.manual = False
 
-if "manual_override" not in st.session_state:
-    st.session_state.manual_override = False
-
-def update_task_profile():
-    if not st.session_state.manual_override:
-        c, u, crit, t = TASK_PROFILES[st.session_state.selected_task]
+def update_profile():
+    if not st.session_state.manual:
+        c,u,crit,t = TASK_PROFILES[st.session_state.task]
         st.session_state.complexity = c
         st.session_state.urgency = u
         st.session_state.criticality = crit
         st.session_state.traceability = t
 
-# Initialize sliders
-update_task_profile()
-
-# -------------------------
-# PERIMETRE AIP
-# -------------------------
-st.subheader("Périmètre d’usage")
+update_profile()
 
 scope = st.radio(
-    "Ces conseils s'appliquent à :",
-    ["Activité non AIP", "Activité AIP / liée à la sûreté"]
+    "Périmètre d’activité :",
+    ["Activité non AIP", "Activité AIP / sûreté réglementée"]
 )
 
-if scope == "Activité AIP / liée à la sûreté":
-    st.error("""
-    ⛔ **Hors périmètre**  
-    Les recommandations IA ne s'appliquent pas aux activités AIP / sûreté / réglementées.  
-    Validation humaine obligatoire, respect du cadre interne.
-    """)
+if scope == "Activité AIP / sûreté réglementée":
+    st.error("Recommandations IA inapplicables. Validation humaine obligatoire.")
 else:
-    st.success("Cette section s’applique aux activités **non AIP** (brouillons, synthèses, pré-analyse).")
+    st.success("OK pour activités **non AIP**.")
 
-    st.selectbox(
-        "Quel type de tâche voulez-vous confier à Copilot ?",
-        list(TASK_PROFILES.keys()),
-        key="selected_task",
-        on_change=update_task_profile
-    )
-
-    st.checkbox("Ajuster manuellement", key="manual_override")
+    st.selectbox("Type de tâche :", list(TASK_PROFILES.keys()), key="task", on_change=update_profile)
+    st.checkbox("Ajuster manuellement", key="manual")
 
     col1, col2 = st.columns(2)
     with col1:
         st.slider("Complexité", 1, 5, key="complexity")
         st.slider("Urgence", 1, 5, key="urgency")
     with col2:
-        st.slider("Criticité", 1, 5, key="criticality")
-        st.slider("Besoin d'explicabilité", 1, 5, key="traceability")
+        st.slider("Criticité métier", 1, 5, key="criticality")
+        st.slider("Besoin d’explicabilité", 1, 5, key="traceability")
 
-    # Recommandation simple
-    st.subheader("Mode recommandé")
-
+    st.subheader("Mode conseillé")
     if st.session_state.urgency >= 4 and st.session_state.complexity <= 2:
-        st.success("→ **Mode conseillé : Réponse rapide**")
-    elif (
-        st.session_state.complexity >= 4
-        or st.session_state.criticality >= 4
-        or st.session_state.traceability >= 4
-    ):
-        st.success("→ **Mode conseillé : Réponse approfondie (Think deeper)**")
+        st.success("→ Mode : **Réponse rapide**")
+    elif st.session_state.complexity >= 4 or st.session_state.criticality >= 4:
+        st.success("→ Mode : **Réponse approfondie (Think deeper)**")
     else:
-        st.success("→ **Mode conseillé : Automatique**")
+        st.success("→ Mode : **Automatique**")
 
 st.divider()
 
-# ============================================================
-# SECTION 5 : INTERNET VS IA
-# ============================================================
 
-st.header("🌐 5. Internet vs IA dans l’entreprise")
+###############################################################
+# SECTION 5 — INTERNET VS IA
+###############################################################
+
+st.header("🌐 5. Internet vs IA")
 
 st.markdown("""
-### Internet → accès à l'information  
-### IA → exploitation de l'information
-
-Comme Internet a transformé nos pratiques dans les années 2000,  
-**l’IA transforme notre travail d’ingénieur : synthèse, comparaison, lecture, structuration.**
+- Internet → accès à l'information  
+- IA → exploitation de l'information  
 """)
 
 st.divider()
 
-# ============================================================
-# SECTION 6 : POURQUOI LES INGÉNIEURS DOIVENT S’Y INTÉRESSER
-# ============================================================
 
-st.header("🚀 6. Pourquoi les ingénieurs ont tout intérêt à s’intéresser à l’IA")
+###############################################################
+# SECTION 6 — POURQUOI LES INGÉNIEURS
+###############################################################
+
+st.header("🚀 6. Pourquoi les ingénieurs doivent s’y intéresser")
 
 st.markdown("""
-### Ce que l’IA apporte concrètement :
-- Lire plus vite  
-- Comparer plus vite  
-- Structurer plus vite  
-- Rédiger plus vite  
-- Identifier des risques plus vite  
+### L’IA permet :
+- lire plus vite  
+- analyser plus vite  
+- comparer plus vite  
+- structurer plus vite  
+- rédiger plus vite  
 
-### Pourquoi cela compte :
-Le temps gagné sur les tâches répétitives = plus de temps pour :  
-- l’analyse,  
-- la prise de recul,  
-- la prise de décision,  
-- les sujets à forte valeur ajoutée.
+### Ce que cela change :
+→ plus de temps pour l’analyse, les arbitrages, le raisonnement et la décision  
 """)
 
-st.success("L’IA ne remplace pas l’ingénieur → elle augmente sa capacité d’analyse.")
+st.success("L’IA **augmente** l’ingénieur — elle ne le remplace pas.")
 
 st.divider()
 
-# ============================================================
-# DISCLAIMER FINAL
-# ============================================================
 
-st.header("⚠️ 7. Limites et précautions d’usage")
+###############################################################
+# SECTION 7 — NOUVEAUX MODULES INTERACTIFS
+###############################################################
+st.header("🧪 7. Modules interactifs supplémentaires")
+
+# 7.1 HUMAIN OU IA
+st.subheader("🎭 Jeu : Humain ou IA ?")
+
+samples = [
+    ("Le refroidissement secondaire présente un risque si la vanne V23 reste bloquée en position fermée.", "humain"),
+    ("Il est possible que la dynamique opératoire soit inversée par un contexte non spécifié.", "ia"),
+    ("La pompe principale doit être isolée pour éviter tout retour de flux non contrôlé.", "humain"),
+]
+
+text, origin = random.choice(samples)
+st.write("**Texte :**")
+st.info(text)
+
+guess = st.radio("À votre avis :", ["Humain", "IA"])
+
+if st.button("Vérifier"):
+    if (guess.lower() == "humain" and origin=="humain") or (guess.lower()=="ia" and origin=="ia"):
+        st.success("Bravo !")
+    else:
+        st.error(f"Perdu → c’était : **{origin.upper()}**")
+
+st.divider()
+
+# 7.2 REFORMULATION / AMPLIFICATION DU PROMPT
+st.subheader("🛠️ Transformer un prompt flou → prompt structuré")
+
+raw = st.text_input("Votre prompt flou :", "Analyse ce document")
+
+if raw:
+    st.write("➡️ **Version améliorée** :")
+    st.code(f"""
+Contexte : {raw}
+
+Objectif de l'analyse :
+- Décrire clairement ce que vous souhaitez obtenir
+
+Contraintes :
+- Préciser les limites, enjeux, exigences
+
+Format attendu :
+- Liste structurée, tableau comparatif, résumé, etc.
+
+Questions si info manquante :
+- Quels éléments clés ne sont pas fournis ?
+""")
+
+st.divider()
+
+# 7.3 BON USAGE / MAUVAIS USAGE
+st.subheader("⚖️ Bon usage vs Mauvais usage")
+
+options = {
+    "Je lui demande un brouillon de note": True,
+    "Je lui demande d’approuver une modification contractuelle": False,
+    "Je lui demande d’identifier des points d’attention": True,
+    "Je lui demande de valider la conformité sûreté": False,
+}
+
+choice = st.selectbox("Choisissez un cas :", list(options.keys()))
+ok = options[choice]
+
+if ok:
+    st.success("Usage approprié ✔ (assisté, non engageant)")
+else:
+    st.error("Usage interdit ❌ (validation humaine obligatoire)")
+
+st.divider()
+
+# 7.4 Simulateur de gain de temps
+st.subheader("⏱️ Simulateur : Combien de temps l’IA peut faire gagner ?")
+
+col1, col2 = st.columns(2)
+with col1:
+    lectures = st.number_input("Heures/semaine — lecture docs", 0, 50, 4)
+    syntheses = st.number_input("Heures/semaine — synthèses", 0, 50, 3)
+    emails = st.number_input("Heures/semaine — mails", 0, 50, 2)
+
+with col2:
+    gain = st.slider("Gain estimé grâce à l’IA (%)", 0, 80, 25)
+
+total = lectures + syntheses + emails
+gain_hours = total * gain / 100
+annual = gain_hours * 47  # 47 semaines de travail
+
+st.write(f"→ Temps gagné / semaine : **{gain_hours:.1f} h**")
+st.write(f"→ Temps gagné / an : **{annual:.1f} h**")
+
+st.success("Impact immédiat sur la productivité et la compétitivité.")
+
+st.divider()
+
+###############################################################
+# SECTION 8 — LIMITES & DISCLAIMERS
+###############################################################
+st.header("⚠️ 8. Limites et précautions d’usage")
 
 st.warning("""
-### 🚨 À connaître absolument
-Les IA génératives peuvent :
-- inventer (hallucinations),
-- mal comprendre des consignes ambiguës,
-- omettre des informations,
-- répondre avec certitude tout en ayant tort.
-
-→ Toujours relire, vérifier, challenger.
+### Limites des modèles
+- peuvent inventer (hallucinations)
+- manquer d’un implicite métier
+- mal comprendre un contexte flou
+- répondre trop confiant même si faux  
 """)
 
 st.error("""
-### ❌ Hors périmètre
-Cette démonstration ne s’applique pas :
-- aux **activités importantes pour la sûreté (AIP)**,
-- aux activités **réglementées / engageantes**,
-- aux documents nécessitant validation qualité/sûreté/contractuelle.
-
-Elle ne doit être utilisée que pour des **brouillons, pré-analyses, structurations, synthèses**.
+### Hors périmètre
+⚠️ Non applicable aux activités :
+- AIP  
+- sûreté réglementée  
+- validation contractuelle / qualité / sûreté  
 """)
 
-st.info("""
-### L’IA est un assistant, pas une source d’autorité.
-Elle accélère, elle ne valide pas.
-""")
+st.info("L’IA accélère. Elle ne valide pas.")
 
-st.caption("Démo pédagogique — IA générative, Copilot et bonnes pratiques d’usage.")
+st.caption("Démo pédagogique – IA & Copilot – Version finale enrichie.")
