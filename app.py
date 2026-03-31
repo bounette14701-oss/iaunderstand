@@ -333,12 +333,13 @@ st.info("L’IA accélère. Elle ne valide pas.")
 
 st.header("9. En savoir +")
 
-raw = st.text_input("""
+st.markdown("""
 Gardez à l'esprit que ce qui est impossible aujourd'hui ne le sera peut-être plus demain, car les avancées dans ce domaine sont extrêmement rapides.")
 Voici quelques ressources pour en savoir plus:
 
 """)
 
-st.link_button("NotebookLM : l'IA dans l'ingénierie (ne pas ajouter d'informations confidentielles).", "https://notebooklm.google.com/notebook/6ff8483b-4e44-4fcf-a3cf-570b3f0d1788")
-
+st.link_button("NotebookLM : l'IA dans l'ingénierie (externe: ne pas ajouter d'informations confidentielles).", "https://notebooklm.google.com/notebook/6ff8483b-4e44-4fcf-a3cf-570b3f0d1788")
+st.link_button("Bibliothèque de cours gratuits d'Antropic (externe).", "https://www.anthropic.com/learn")
+st.link_button("Rapport de l'IA dans l'ingénierie Arts et Métiers", "https://think-tank.arts-et-metiers.fr/sites/default/files/2025-06/L%27essor%20de%20l%27ing%C3%A9nierie%20g%C3%A9n%C3%A9rative%20-%20Rapport.pdf")
 st.caption("Merci ;) ")
