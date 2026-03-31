@@ -322,28 +322,6 @@ else:
 
 st.divider()
 
-# 7.4 Simulateur de gain de temps
-st.subheader("⏱️ Simulateur : Combien de temps l’IA peut faire gagner ?")
-
-col1, col2 = st.columns(2)
-with col1:
-    lectures = st.number_input("Heures/semaine — lecture docs", 0, 50, 4)
-    syntheses = st.number_input("Heures/semaine — synthèses", 0, 50, 3)
-    emails = st.number_input("Heures/semaine — mails", 0, 50, 2)
-
-with col2:
-    gain = st.slider("Gain estimé grâce à l’IA (%)", 0, 80, 25)
-
-total = lectures + syntheses + emails
-gain_hours = total * gain / 100
-annual = gain_hours * 47  # 47 semaines de travail
-
-st.write(f"→ Temps gagné / semaine : **{gain_hours:.1f} h**")
-st.write(f"→ Temps gagné / an : **{annual:.1f} h**")
-
-st.success("Impact immédiat sur la productivité et la compétitivité.")
-
-st.divider()
 
 ###############################################################
 # SECTION 8 — LIMITES & DISCLAIMERS
