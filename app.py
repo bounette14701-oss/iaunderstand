@@ -325,4 +325,20 @@ st.error("""
 
 st.info("L’IA accélère. Elle ne valide pas.")
 
+
+
+########
+#9
+####
+
+st.header("9. En savoir +")
+
+raw = st.text_input("""
+Gardez à l'esprit que ce qui est impossible aujourd'hui ne le sera peut-être plus demain, car les avancées dans ce domaine sont extrêmement rapides.")
+Voici quelques ressources pour en savoir plus:
+
+""")
+
+st.link_button("NotebookLM : l'IA dans l'ingénierie (ne pas ajouter d'informations confidentielles).", "https://notebooklm.google.com/notebook/6ff8483b-4e44-4fcf-a3cf-570b3f0d1788")
+
 st.caption("Merci ;) ")
