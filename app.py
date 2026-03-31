@@ -28,7 +28,7 @@ with st.sidebar:
     4. Mode Copilot  
     5. Internet vs IA  
     6. Pourquoi les ingénieurs s’y intéressent  
-    7. *Nouveaux modules interactifs*  
+    7. D'autres éléments  
     8. Limites & précautions
     """)
 
@@ -252,32 +252,11 @@ st.divider()
 ###############################################################
 # SECTION 7 — NOUVEAUX MODULES INTERACTIFS
 ###############################################################
-st.header("🧪 7. Modules interactifs supplémentaires")
+st.header("🧪 7. Autres éléments")
 
-# 7.1 HUMAIN OU IA
-st.subheader("🎭 Jeu : Humain ou IA ?")
 
-samples = [
-    ("Le refroidissement secondaire présente un risque si la vanne V23 reste bloquée en position fermée.", "humain"),
-    ("Il est possible que la dynamique opératoire soit inversée par un contexte non spécifié.", "ia"),
-    ("La pompe principale doit être isolée pour éviter tout retour de flux non contrôlé.", "humain"),
-]
 
-text, origin = random.choice(samples)
-st.write("**Texte :**")
-st.info(text)
-
-guess = st.radio("À votre avis :", ["Humain", "IA"])
-
-if st.button("Vérifier"):
-    if (guess.lower() == "humain" and origin=="humain") or (guess.lower()=="ia" and origin=="ia"):
-        st.success("Bravo !")
-    else:
-        st.error(f"Perdu → c’était : **{origin.upper()}**")
-
-st.divider()
-
-# 7.2 REFORMULATION / AMPLIFICATION DU PROMPT
+# 7.1 REFORMULATION / AMPLIFICATION DU PROMPT
 st.subheader("🛠️ Transformer un prompt flou → prompt structuré")
 
 raw = st.text_input("Votre prompt flou :", "Analyse ce document")
@@ -302,7 +281,7 @@ Questions si info manquante :
 
 st.divider()
 
-# 7.3 BON USAGE / MAUVAIS USAGE
+# 7.2 BON USAGE / MAUVAIS USAGE
 st.subheader("⚖️ Bon usage vs Mauvais usage")
 
 options = {
