@@ -325,4 +325,4 @@ st.error("""
 
 st.info("L’IA accélère. Elle ne valide pas.")
 
-st.caption("Démo pédagogique – IA & Copilot – Version finale enrichie.")
+st.caption("Merci ;) ")
